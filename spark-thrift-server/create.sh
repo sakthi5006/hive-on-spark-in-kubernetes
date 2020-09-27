@@ -66,7 +66,7 @@ PATH=$PATH:$SPARK_HOME/bin;
 cd ${tempDirectory};
 
 # submit spark thrift server job.
-MASTER=k8s://{{ masterUrl }};
+MASTER=k8s://your-k8s-master-url;
 NAMESPACE=${MY_NAMESPACE};
 ENDPOINT=https://s3-endpoint;
 BUCKET=mykidong;
