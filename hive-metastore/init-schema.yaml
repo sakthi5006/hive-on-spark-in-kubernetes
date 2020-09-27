@@ -6,10 +6,6 @@ metadata:
 spec:
   template:
     spec:
-      # TODO: Some pods running on the same node can not access to each other through service url.
-      #       This job cannot access to mysql-service:3306.
-      #       It seems to be network problem in Kubernetes.
-      #       Later, This PodAntiAffinity should be removed.
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
