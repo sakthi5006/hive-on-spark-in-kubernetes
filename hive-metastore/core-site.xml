@@ -1,0 +1,34 @@
+<configuration>
+    <property>
+        <name>fs.s3a.connection.ssl.enabled</name>
+	    <value>true</value>
+    </property>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>s3a://{{ bucket }}</value>
+    </property>
+    <property>
+        <name>fs.s3a.path.style.access</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>fs.s3a.access.key</name>
+        <value>{{ accessKey }}</value>
+    </property>
+    <property>
+        <name>fs.s3a.secret.key</name>
+        <value>{{ secretKey }}</value>
+    </property>
+    <property>
+        <name>fs.s3a.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+    <property>
+        <name>fs.s3a.endpoint</name>
+        <value>{{ endpoint }}</value>
+    </property>
+    <property>
+        <name>fs.s3a.fast.upload</name>
+        <value>true</value>
+    </property>
+</configuration>
