@@ -5,7 +5,7 @@
     </property>
     <property>
         <name>fs.defaultFS</name>
-        <value>s3a://{{ bucket }}</value>
+        <value>s3a://mykidong</value>
     </property>
     <property>
         <name>fs.s3a.path.style.access</name>
@@ -13,11 +13,11 @@
     </property>
     <property>
         <name>fs.s3a.access.key</name>
-        <value>{{ accessKey }}</value>
+        <value>my-access-key</value>
     </property>
     <property>
         <name>fs.s3a.secret.key</name>
-        <value>{{ secretKey }}</value>
+        <value>my-secret-key</value>
     </property>
     <property>
         <name>fs.s3a.impl</name>
@@ -25,7 +25,7 @@
     </property>
     <property>
         <name>fs.s3a.endpoint</name>
-        <value>{{ endpoint }}</value>
+        <value>https://s3-endpoint</value>
     </property>
     <property>
         <name>fs.s3a.fast.upload</name>

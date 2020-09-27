@@ -13,7 +13,7 @@
 	</property>
 	<property>
 		<name>javax.jdo.option.ConnectionURL</name>
-		<value>jdbc:mysql://mysql-service.{{ namespace }}.svc.{{ clusterName }}:3306/metastore_db?useSSL=false</value>
+		<value>jdbc:mysql://mysql-service.my-namespace.svc.cluster.local:3306/metastore_db?useSSL=false</value>
 	</property>
 	<property>
 		<name>javax.jdo.option.ConnectionUserName</name>
@@ -25,7 +25,7 @@
 	</property>
 	<property>
 		<name>metastore.warehouse.dir</name>
-		<value>s3a://{{ bucket }}/warehouse/</value>
+		<value>s3a://mykidong/warehouse/</value>
 	</property>
 	<property>
 		<name>metastore.thrift.port</name>

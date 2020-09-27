@@ -1,6 +1,10 @@
 #!/bin/sh
 
-cd {{ tempDirectory }};
+export MY_NAMESPACE=my-namespace
+export tempDirectory=~/temp/spark;
+mkdir -p ${tempDirectory};
+
+cd ${tempDirectory};
 
 # download spark tar file from google drive.
 # https://drive.google.com/file/d/1_hpk6p_mgQ3gCA3ZV_cSUuEdt_yZlAaX/view?usp=sharing
@@ -55,23 +59,18 @@ cp -R ${SPARK_FILE_NAME}/* .;
 rm -rf ${SPARK_FILE_NAME};
 
 # set spark home.
-SPARK_HOME={{ tempDirectory }}/spark;
+SPARK_HOME=${tempDirectory}/spark;
 PATH=$PATH:$SPARK_HOME/bin;
 
 
-cd {{ tempDirectory }};
-
-echo "whoami: $(whoami), java: $JAVA_HOME"
-
-# export kubeconfig.
-export KUBECONFIG={{ kubeconfig }};
-
-echo "KUBECONFIG: $KUBECONFIG";
+cd ${tempDirectory};
 
 # submit spark thrift server job.
 MASTER=k8s://{{ masterUrl }};
-NAMESPACE={{ namespace }};
-ENDPOINT={{ endpoint }};
+NAMESPACE=${MY_NAMESPACE};
+ENDPOINT=https://s3-endpoint;
+BUCKET=mykidong;
+HIVE_METASTORE=metastore:9083;
 
 spark-submit \
 --master $MASTER \
@@ -93,14 +92,14 @@ spark-submit \
 --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-localdirpvc.mount.path=/localdir \
 --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-localdirpvc.mount.readOnly=false \
 --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.spark-local-dir-localdirpvc.options.claimName=spark-exec-localdir-pvc \
---conf spark.kubernetes.file.upload.path=s3a://{{ bucket }}/spark-thrift-server \
+--conf spark.kubernetes.file.upload.path=s3a://${BUCKET}/spark-thrift-server \
 --conf spark.kubernetes.container.image.pullPolicy=Always \
 --conf spark.kubernetes.namespace=$NAMESPACE \
 --conf spark.kubernetes.container.image=mykidong/spark:v3.0.0 \
 --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
 --conf spark.hadoop.hive.metastore.client.connect.retry.delay=5 \
 --conf spark.hadoop.hive.metastore.client.socket.timeout=1800 \
---conf spark.hadoop.hive.metastore.uris=thrift://{{ hiveMetastore }} \
+--conf spark.hadoop.hive.metastore.uris=thrift://${HIVE_METASTORE} \
 --conf spark.hadoop.hive.server2.enable.doAs=false \
 --conf spark.hadoop.hive.server2.thrift.http.port=10002 \
 --conf spark.hadoop.hive.server2.thrift.port=10016 \
@@ -109,29 +108,29 @@ spark-submit \
 --conf spark.hadoop.hive.execution.engine=spark \
 --conf spark.hadoop.hive.input.format=io.delta.hive.HiveInputFormat \
 --conf spark.hadoop.hive.tez.input.format=io.delta.hive.HiveInputFormat \
---conf spark.sql.warehouse.dir=s3a:/{{ bucket }}/apps/spark/warehouse \
---conf spark.hadoop.fs.defaultFS=s3a://{{ bucket }} \
---conf spark.hadoop.fs.s3a.access.key={{ accessKey }} \
---conf spark.hadoop.fs.s3a.secret.key={{ secretKey }} \
+--conf spark.sql.warehouse.dir=s3a:/${BUCKET}/apps/spark/warehouse \
+--conf spark.hadoop.fs.defaultFS=s3a://${BUCKET} \
+--conf spark.hadoop.fs.s3a.access.key=my-access-key \
+--conf spark.hadoop.fs.s3a.secret.key=my-secret-key \
 --conf spark.hadoop.fs.s3a.connection.ssl.enabled=true \
 --conf spark.hadoop.fs.s3a.endpoint=$ENDPOINT \
 --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
 --conf spark.hadoop.fs.s3a.fast.upload=true \
 --conf spark.hadoop.fs.s3a.path.style.access=true \
 --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp" \
---conf spark.executor.instances={{ executors }} \
---conf spark.executor.memory={{ executorMemory }}G \
---conf spark.executor.cores={{ executorCore }} \
---conf spark.driver.memory={{ driverMemory }}G \
---conf spark.jars={{ tempDirectory }}/${DELTA_CORE_FILE_NAME}.jar,{{ tempDirectory }}/${HIVE_DELTA_FILE_NAME}.jar \
-file://{{ tempDirectory }}/${SPARK_THRIFT_SERVER_FILE_NAME}.jar \
+--conf spark.executor.instances=2 \
+--conf spark.executor.memory=2G \
+--conf spark.executor.cores=1 \
+--conf spark.driver.memory=1G \
+--conf spark.jars=${tempDirectory}/${DELTA_CORE_FILE_NAME}.jar,${tempDirectory}/${HIVE_DELTA_FILE_NAME}.jar \
+file://${tempDirectory}/${SPARK_THRIFT_SERVER_FILE_NAME}.jar \
 > /dev/null 2>&1 &
 
 PID=$!
 echo "$PID" > pid
 
 # wait for spark thrift server driver being run.
-while [[ $(kubectl get pods -n {{ namespace }} -l spark-role=driver -o jsonpath={..status.phase}) != *"Running"* ]]; do echo "waiting for driver being run" && sleep 2; done
+while [[ $(kubectl get pods -n ${MY_NAMESPACE} -l spark-role=driver -o jsonpath={..status.phase}) != *"Running"* ]]; do echo "waiting for driver being run" && sleep 2; done
 
 # kill current spark submit process.
 kill $(cat pid);
@@ -139,7 +138,6 @@ kill $(cat pid);
 # create service.
 kubectl apply -f spark-thrift-server-service.yaml;
 
-unset KUBECONFIG;
 unset SPARK_HOME;
 
 

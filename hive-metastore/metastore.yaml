@@ -2,13 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: metastore
-  namespace: {{ namespace }}
+  namespace: my-namespace
 spec:
-  # TODO: Some pods running on the same node on which metastore pod already has been running
-  #       can not access to the metastore with the url thrift://metastore:9083
-  #       It seems to be network problem in Kubernetes.
-  #       Later, this LoadBalancer type should be replaced with ClusterIP.
-  type: LoadBalancer
   ports:
   - port: 9083
   selector:
@@ -18,7 +13,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metastore
-  namespace: {{ namespace }}
+  namespace: my-namespace
 spec:
   selector:
     matchLabels:

@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: mysql-secrets
-  namespace: {{ namespace }}
+  namespace: my-namespace
 type: Opaque
 data:
   ROOT_PASSWORD: aWNhcnVzMDMzNw==
@@ -12,20 +12,20 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-data-disk
-  namespace: {{ namespace }}
+  namespace: my-namespace
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ storageSize }}Gi
-  storageClassName: {{ storageClass }}
+      storage: 2Gi
+  storageClassName: direct.csi.min.io
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-deployment
-  namespace: {{ namespace }}
+  namespace: my-namespace
   labels:
     app: mysql
 spec:
@@ -62,7 +62,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
-  namespace: {{ namespace }}
+  namespace: my-namespace
 spec:
   selector:
     app: mysql
