@@ -17,18 +17,6 @@ code="$(awk '/_warning_/ {print $NF}' /tmp/cookie)"
 curl -Lb /tmp/cookie "https://drive.google.com/uc?export=download&confirm=${code}&id=${fileId}" -o ${fileName}
 
 
-
-# download spark thrift server jar file from google drive.
-# https://drive.google.com/file/d/1U8-Tlp2783psK-AR_m1TC6CFA4eSeiDL/view?usp=sharing
-SPARK_THRIFT_SERVER_FILE_NAME=spark-thrift-server-1.0.0-SNAPSHOT-spark-job
-fileId=1U8-Tlp2783psK-AR_m1TC6CFA4eSeiDL
-fileName=${SPARK_THRIFT_SERVER_FILE_NAME}.jar
-
-curl -sc /tmp/cookie "https://drive.google.com/uc?export=download&id=${fileId}" > /dev/null
-code="$(awk '/_warning_/ {print $NF}' /tmp/cookie)"
-curl -Lb /tmp/cookie "https://drive.google.com/uc?export=download&confirm=${code}&id=${fileId}" -o ${fileName}
-
-
 # download delta core jar file from google drive.
 # https://drive.google.com/file/d/1WCzSnwXEYc3Q8VkvvJ5nuidq9yGYDIsa/view?usp=sharing
 DELTA_CORE_FILE_NAME=delta-core-shaded-assembly_2.12-0.1.0
@@ -123,7 +111,7 @@ spark-submit \
 --conf spark.executor.cores=1 \
 --conf spark.driver.memory=1G \
 --conf spark.jars=${tempDirectory}/${DELTA_CORE_FILE_NAME}.jar,${tempDirectory}/${HIVE_DELTA_FILE_NAME}.jar \
-file://${tempDirectory}/${SPARK_THRIFT_SERVER_FILE_NAME}.jar \
+file://<example-spark-thrift-server-src-target>/spark-thrift-server-1.0.0-SNAPSHOT-spark-job.jar \
 > /dev/null 2>&1 &
 
 PID=$!
