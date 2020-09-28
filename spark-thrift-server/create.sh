@@ -111,7 +111,7 @@ spark-submit \
 --conf spark.executor.cores=1 \
 --conf spark.driver.memory=1G \
 --conf spark.jars=${tempDirectory}/${DELTA_CORE_FILE_NAME}.jar,${tempDirectory}/${HIVE_DELTA_FILE_NAME}.jar \
-file://<example-spark-thrift-server-src-target>/spark-thrift-server-1.0.0-SNAPSHOT-spark-job.jar \
+file://<src>/examples/spark-thrift-server/target/spark-thrift-server-1.0.0-SNAPSHOT-spark-job.jar \
 > /dev/null 2>&1 &
 
 PID=$!
