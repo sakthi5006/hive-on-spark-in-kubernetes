@@ -28,7 +28,6 @@ code="$(awk '/_warning_/ {print $NF}' /tmp/cookie)"
 curl -Lb /tmp/cookie "https://drive.google.com/uc?export=download&confirm=${code}&id=${fileId}" -o ${fileName}
 
 
-
 # download hive delta file from google drive.
 # https://drive.google.com/file/d/1PcSraIo9Fc5sKIuDmDfFytcE8i5DcgN_/view?usp=sharing
 HIVE_DELTA_FILE_NAME=hive-delta_2.12-0.1.0
@@ -124,27 +123,30 @@ check_spark_thrift_server_is_running() {
     POD_STATUS=$(kubectl get pods -n ${MY_NAMESPACE} -l spark-role=driver -o jsonpath={..status.phase});
     POD_NAME=$(kubectl get pods -n ${MY_NAMESPACE} -l spark-role=driver -o jsonpath={..metadata.name});
 
-    # Set space as the delimiter
-    IFS=' ';
+    if [[ ${POD_STATUS} != "" ]]
+    then
+      # Set space as the delimiter
+      IFS=' ';
 
-    #Read the split words into an array based on space delimiter
-    read -a POD_STATUS_ARRAY <<< "$POD_STATUS";
-    read -a POD_NAME_ARRAY <<< "$POD_NAME";
+      #Read the split words into an array based on space delimiter
+      read -a POD_STATUS_ARRAY <<< "$POD_STATUS";
+      read -a POD_NAME_ARRAY <<< "$POD_NAME";
 
-    for ((i = 0; i < ${#POD_STATUS_ARRAY[@]}; ++i)); do
-        pod_status=${POD_STATUS_ARRAY[i]};
-        pod_name=${POD_NAME_ARRAY[i]};
-        printf "status: %s, name: %s\n" "${pod_status}" "${pod_name}";
+      for ((i = 0; i < ${#POD_STATUS_ARRAY[@]}; ++i)); do
+          pod_status=${POD_STATUS_ARRAY[i]};
+          pod_name=${POD_NAME_ARRAY[i]};
+          printf "status: %s, name: %s\n" "${pod_status}" "${pod_name}";
 
-        if [[ $pod_status == "Running" ]]
-        then
-            if [[ $pod_name =~ "spark-thrift-server" ]]
-            then
-                printf "selected pod - status: %s, name: %s\n" "${pod_status}" "${pod_name}";
-                SPARK_THRIFT_SERVER_IS_RUNNING="True";
-            fi
-        fi
-    done
+          if [[ $pod_status == "Running" ]]
+          then
+              if [[ $pod_name =~ "spark-thrift-server" ]]
+              then
+                  printf "selected pod - status: %s, name: %s\n" "${pod_status}" "${pod_name}";
+                  SPARK_THRIFT_SERVER_IS_RUNNING="True";
+              fi
+          fi
+      done
+    fi
 }
 
 while [[ $SPARK_THRIFT_SERVER_IS_RUNNING != "True" ]];
